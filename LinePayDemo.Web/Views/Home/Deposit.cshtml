@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "儲值點數";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3>使用 LINE Pay 儲值點數</h3>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @ViewBag.ErrorMessage
+                        </div>
+                    }
+
+                    <p class="text-muted text-center">請輸入您想儲值的點數金額。</p>
+
+                    <form asp-controller="Home" asp-action="InitiateLinePayDeposit" method="post">
+                        <div class="form-group mb-3">
+                            <label for="amount" class="form-label">儲值金額 (點):</label>
+                            <input type="number" class="form-control" id="amount" name="amount" value="100" min="1"
+                                   required/>
+                            <small class="form-text text-muted">最低儲值金額為 1 點。</small>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fab fa-line me-2"></i> 使用 LINE Pay 儲值
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+}

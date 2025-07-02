@@ -4,6 +4,17 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>45fe3765-fc8a-4f54-a4e4-b9c498d80e32</UserSecretsId>
     </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LinePayDemo.LinePay\LinePayDemo.LinePay.csproj" />
+      <ProjectReference Include="..\LinePayDemo.Order\LinePayDemo.Order.csproj" />
+      <ProjectReference Include="..\LinePayDemo.Transaction\LinePayDemo.Transaction.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\LinePay\Index.cshtml" />
+    </ItemGroup>
 
 </Project>

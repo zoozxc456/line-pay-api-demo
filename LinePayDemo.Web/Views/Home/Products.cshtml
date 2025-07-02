@@ -1,0 +1,50 @@
+@model IEnumerable<LinePayDemo.Product.Models.ProductItem>
+
+@{
+    ViewData["Title"] = "商店商品";
+}
+
+<h2>我們的商品</h2>
+
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @ViewBag.ErrorMessage
+    </div>
+}
+@if (!string.IsNullOrEmpty(ViewBag.SuccessMessage))
+{
+    <div class="alert alert-success" role="alert">
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+<h3>您目前的點數：@ViewBag.UserBalance</h3>
+<hr/>
+
+<div class="row">
+    @foreach (var product in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@product.Name</h5>
+                    <p class="card-text">價格：@product.Price 點</p>
+                    <form asp-controller="Home" asp-action="Purchase" method="post">
+                        <input type="hidden" name="productId" value="@product.Id"/>
+                        <div class="form-group">
+                            <label for="quantity-@product.Id">數量：</label>
+                            <input type="number" id="quantity-@product.Id" name="quantity" value="1" min="1"
+                                   class="form-control" style="width: 100px;"/>
+                        </div>
+                        <button type="submit" class="btn btn-success mt-2">立即購買</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<p class="mt-4">
+    <a asp-controller="Home" asp-action="Deposit" class="btn btn-info">儲值更多點數</a>
+</p>

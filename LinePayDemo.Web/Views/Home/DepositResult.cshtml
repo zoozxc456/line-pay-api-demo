@@ -1,0 +1,46 @@
+@{
+    ViewData["Title"] = "儲值結果";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white text-center">
+                    <h3>儲值點數結果</h3>
+                </div>
+                <div class="card-body text-center">
+                    @if (!string.IsNullOrEmpty(ViewBag.Message))
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <h4>@ViewBag.Message</h4>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <h4>沒有找到結果訊息。</h4>
+                            <p>這可能是由於直接訪問此頁面或發生了未預期的錯誤。</p>
+                        </div>
+                    }
+
+                    <hr />
+                    <p>感謝您的操作。</p>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <a asp-controller="Home" asp-action="Products" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shopping-bag me-2"></i> 回到商店消費
+                        </a>
+                        <a asp-controller="Home" asp-action="Deposit" class="btn btn-secondary mt-2">
+                            <i class="fas fa-redo me-2"></i> 再次儲值
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+}

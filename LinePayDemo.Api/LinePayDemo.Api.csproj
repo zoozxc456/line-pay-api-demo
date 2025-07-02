@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>9424c3e6-6f0d-4792-9ebb-39d8f0a6abbf</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LinePayDemo.LinePay\LinePayDemo.LinePay.csproj" />
+      <ProjectReference Include="..\LinePayDemo.Order\LinePayDemo.Order.csproj" />
+      <ProjectReference Include="..\LinePayDemo.Product\LinePayDemo.Product.csproj" />
+      <ProjectReference Include="..\LinePayDemo.Transaction\LinePayDemo.Transaction.csproj" />
+      <ProjectReference Include="..\LinePayDemo.User\LinePayDemo.User.csproj" />
+    </ItemGroup>
+
+</Project>
