@@ -53,8 +53,8 @@ public class InMemoryUserRepository : IUserRepository
         return Task.FromResult(user);
     }
 
-    public Task<IEnumerable<Models.User>> GetAllAsync()
+    public Task<List<Models.User>> GetAllAsync()
     {
-        return Task.FromResult<IEnumerable<Models.User>>(Users.Values.ToList());
+        return Task.FromResult(Users.Values.ToList());
     }
 }

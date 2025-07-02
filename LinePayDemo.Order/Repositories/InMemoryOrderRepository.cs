@@ -24,8 +24,8 @@ public class InMemoryOrderRepository : IOrderRepository
         return Task.FromResult(order);
     }
 
-    public Task<IEnumerable<Models.Order>> GetAllForUserAsync(Guid userId)
+    public Task<List<Models.Order>> GetAllForUserAsync(Guid userId)
     {
-        return Task.FromResult<IEnumerable<Models.Order>>(Orders.Values.Where(o => o.UserId == userId).ToList());
+        return Task.FromResult(Orders.Values.Where(o => o.UserId == userId).ToList());
     }
 }

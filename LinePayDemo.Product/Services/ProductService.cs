@@ -5,7 +5,7 @@ namespace LinePayDemo.Product.Services;
 
 public class ProductService(IProductRepository productRepository) : IProductService
 {
-    public Task<IEnumerable<ProductItem>> GetAllProductsAsync()
+    public Task<List<ProductItem>> GetAllProductsAsync()
     {
         return productRepository.GetAllAsync();
     }

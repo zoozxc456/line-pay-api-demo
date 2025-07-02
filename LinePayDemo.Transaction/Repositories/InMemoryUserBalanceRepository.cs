@@ -3,11 +3,11 @@ using LinePayDemo.Transaction.Models;
 
 namespace LinePayDemo.Transaction.Repositories;
 
-public class UserBalanceRepository : IUserBalanceRepository
+public class InMemoryUserBalanceRepository : IUserBalanceRepository
 {
     private static readonly ConcurrentDictionary<Guid, UserBalance> UserBalances = new();
 
-    public Task<UserBalance> GetByUserIdAsync(Guid userId)
+    public Task<UserBalance?> GetByUserIdAsync(Guid userId)
     {
         UserBalances.TryGetValue(userId, out var balance);
         // 如果找不到餘額則初始化 (適用於新使用者)
@@ -17,7 +17,7 @@ public class UserBalanceRepository : IUserBalanceRepository
             UserBalances.TryAdd(userId, balance);
         }
 
-        return Task.FromResult(balance);
+        return Task.FromResult<UserBalance?>(balance);
     }
 
     public Task AddOrUpdateAsync(UserBalance userBalance)

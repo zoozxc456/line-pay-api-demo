@@ -1,3 +1,6 @@
+using LinePayDemo.Infrastructure.Persistence.Contexts;
+using LinePayDemo.Infrastructure.Persistence.Repositories;
+using LinePayDemo.Infrastructure.Persistence.Seeds;
 using LinePayDemo.LinePay.Clients;
 using LinePayDemo.LinePay.Services;
 using LinePayDemo.LinePay.Settings;
@@ -9,6 +12,7 @@ using LinePayDemo.Transaction.Repositories;
 using LinePayDemo.Transaction.Services;
 using LinePayDemo.User.Repositories;
 using LinePayDemo.User.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,18 +22,25 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ShoppingMallSeedData>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddSingleton<IOrderRepository, InMemoryOrderRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
-builder.Services.AddSingleton<ILinePayTransactionRepository, InMemoryLinePayTransactionRepository>();
-builder.Services.AddSingleton<IUserBalanceRepository, UserBalanceRepository>();
+builder.Services.AddScoped<ILinePayTransactionRepository, LinePayTransactionRepository>();
+builder.Services.AddScoped<IUserBalanceRepository, UserBalanceRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddSingleton<IProductRepository, InMemoryProductRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ILinePayPaymentService, LinePayPaymentService>();
 builder.Services.AddScoped<ILinePayApiHttpClient, LinePayApiHttpClient>();
 builder.Services.Configure<LinePaySettings>(builder.Configuration.GetSection("LinePaySettings"));
+builder.Services.AddDbContext<ShoppingMallContext>(options =>
+{
+    options.UseSnakeCaseNamingConvention();
+    options.UseSqlServer(
+        "Server=dev-db.minjie.demo,14333;database=shopping_mall;User ID=sa;Password=MSSQL@Password@2024;TrustServerCertificate=True;MultipleActiveResultSets=True");
+});
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
@@ -39,6 +50,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    var scope = app.Services.CreateAsyncScope();
+    var seeder = scope.ServiceProvider.GetRequiredService<ShoppingMallSeedData>();
+    seeder.SeedAsync().GetAwaiter();
 }
 
 app.UseHttpsRedirection();

@@ -63,12 +63,14 @@ public class TransactionService(
     public async Task<decimal> GetUserBalanceAsync(Guid userId)
     {
         var userBalance = await userBalanceRepository.GetByUserIdAsync(userId);
-        return userBalance.Balance;
+        return userBalance?.Balance ?? Decimal.Zero;
     }
 
     public async Task AddPointsToUserBalanceAsync(Guid userId, decimal amount)
     {
         var userBalance = await userBalanceRepository.GetByUserIdAsync(userId);
+        if (userBalance == null) userBalance = new UserBalance { UserId = userId, Balance = 0 };
+
         userBalance.Balance += amount;
         await userBalanceRepository.AddOrUpdateAsync(userBalance);
         logger.LogInformation($"使用者 {userId} 餘額增加 {amount}。新餘額：{userBalance.Balance}");
@@ -77,6 +79,8 @@ public class TransactionService(
     public async Task<DeductionResult> DeductPointsAsync(Guid userId, decimal amount)
     {
         var userBalance = await userBalanceRepository.GetByUserIdAsync(userId);
+        if (userBalance == null) userBalance = new UserBalance { UserId = userId, Balance = 0 };
+
         if (userBalance.Balance >= amount)
         {
             userBalance.Balance -= amount;

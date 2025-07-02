@@ -24,9 +24,9 @@ public class InMemoryProductRepository : IProductRepository
         }
     ];
 
-    public Task<IEnumerable<ProductItem>> GetAllAsync()
+    public Task<List<ProductItem>> GetAllAsync()
     {
-        return Task.FromResult<IEnumerable<ProductItem>>(_products);
+        return Task.FromResult(_products);
     }
 
     public Task<ProductItem?> GetByIdAsync(Guid id)

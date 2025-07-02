@@ -16,7 +16,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddSingleton<IOrderRepository, InMemoryOrderRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddSingleton<ILinePayTransactionRepository, InMemoryLinePayTransactionRepository>();
-builder.Services.AddSingleton<IUserBalanceRepository, UserBalanceRepository>();
+builder.Services.AddSingleton<IUserBalanceRepository, InMemoryUserBalanceRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddSingleton<IProductRepository, InMemoryProductRepository>();
 builder.Services.AddScoped<ILinePayPaymentService, LinePayPaymentService>();

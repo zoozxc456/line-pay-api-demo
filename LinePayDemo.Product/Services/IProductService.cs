@@ -4,6 +4,6 @@ namespace LinePayDemo.Product.Services;
 
 public interface IProductService
 {
-    Task<IEnumerable<ProductItem>> GetAllProductsAsync();
+    Task<List<ProductItem>> GetAllProductsAsync();
     Task<ProductItem?> GetProductByIdAsync(Guid productId);
 }

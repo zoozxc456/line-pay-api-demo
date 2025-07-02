@@ -44,8 +44,8 @@ public class InMemoryLinePayTransactionRepository : ILinePayTransactionRepositor
         return Task.FromResult(transaction);
     }
 
-    public Task<IEnumerable<LinePayTransaction>> GetAllAsync()
+    public Task<List<LinePayTransaction>> GetAllAsync()
     {
-        return Task.FromResult<IEnumerable<LinePayTransaction>>(Transactions.Values.ToList());
+        return Task.FromResult(Transactions.Values.ToList());
     }
 }

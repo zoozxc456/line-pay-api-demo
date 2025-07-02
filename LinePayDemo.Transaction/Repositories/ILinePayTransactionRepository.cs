@@ -8,5 +8,5 @@ public interface ILinePayTransactionRepository
     Task UpdateAsync(LinePayTransaction transaction);
     Task<LinePayTransaction?> GetByOrderIdAsync(Guid orderId);
     Task<LinePayTransaction?> GetByLinePayTransactionIdAsync(long linePayTransactionId);
-    Task<IEnumerable<LinePayTransaction>> GetAllAsync();
+    Task<List<LinePayTransaction>> GetAllAsync();
 }

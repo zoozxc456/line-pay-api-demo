@@ -4,6 +4,6 @@ namespace LinePayDemo.Product.Repositories;
 
 public interface IProductRepository
 {
-    Task<IEnumerable<ProductItem>> GetAllAsync();
+    Task<List<ProductItem>> GetAllAsync();
     Task<ProductItem?> GetByIdAsync(Guid id);
 }

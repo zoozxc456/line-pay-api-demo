@@ -6,5 +6,5 @@ public interface IUserRepository
     Task AddAsync(Models.User user);
     Task UpdateAsync(Models.User user);
     Task<Models.User?> GetByIdAsync(Guid id);
-    Task<IEnumerable<Models.User>> GetAllAsync();
+    Task<List<Models.User>> GetAllAsync();
 }
