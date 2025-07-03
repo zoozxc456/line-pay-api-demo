@@ -205,4 +205,105 @@ public class LinePayPaymentService(
         logger.LogInformation($"取消呼叫了狀態為 {linePayTx.Status} 的交易。訂單ID：{orderId}");
         return LinePayPaymentResult.Success($"交易狀態為 '{linePayTx.Status}'，無需操作。");
     }
+
+    public async Task<LinePayPaymentResult> RefundDepositAsync(Guid orderId, Guid userId, long transactionId,
+        decimal? refundAmount = null)
+    {
+        var linePayTx = await transactionService.GetLinePayTransactionByOrderIdAsync(orderId);
+
+        if (linePayTx == null)
+        {
+            return LinePayPaymentResult.Fail("退款失敗：找不到本地交易記錄。");
+        }
+
+        if (linePayTx.LinePayTransactionId.Equals(0))
+        {
+            LinePayPaymentResult.Fail("退款失敗：本地交易記錄中缺少 LINE Pay 交易 ID。");
+        }
+
+        if (linePayTx.Status != TransactionStatus.Completed &&
+            linePayTx.Status != TransactionStatus.PartiallyRefunded) // 只有已確認或部分退款的才能再退款
+        {
+            return LinePayPaymentResult.Fail($"退款失敗：交易狀態為 '{linePayTx.Status}'，無法進行退款。");
+        }
+
+        if (refundAmount is <= 0)
+        {
+            return LinePayPaymentResult.Fail("退款金額必須大於 0。");
+        }
+
+        if (refundAmount.HasValue && refundAmount.Value > linePayTx.GetRefundableAmount())
+        {
+            return LinePayPaymentResult.Fail($"退款金額 {refundAmount.Value} 超出可退款金額 {linePayTx.GetRefundableAmount()}。");
+        }
+
+        if (!refundAmount.HasValue && linePayTx.GetRefundableAmount() <= 0)
+        {
+            return LinePayPaymentResult.Fail($"退款金額 {linePayTx.Amount} 超出可退款金額 {linePayTx.GetRefundableAmount()}。");
+        }
+
+        try
+        {
+            var refundTransaction = await transactionService.CreateRefundTransactionAsync(linePayTx.OrderId,
+                linePayTx.Id,
+                refundAmount.GetValueOrDefault(0),
+                linePayTx.UserId);
+
+            var refundRequest = new LinePayRefundRequest
+            {
+                RefundAmount = refundAmount
+            };
+
+            var refundResponse =
+                await linePayApiHttpClient.RefundPayment(linePayTx.LinePayTransactionId, refundRequest);
+
+            if (refundResponse is { ReturnCode: "0000", Info: not null })
+            {
+                var newStatus = TransactionStatus.Refunded;
+                if (refundAmount.HasValue && refundAmount.Value < linePayTx.Amount)
+                {
+                    await transactionService.ConfirmPartialRefundTransactionStatusAsync(linePayTx.Id, refundTransaction.Id);
+                }
+                else if (!refundAmount.HasValue) // 全額退款
+                {
+                    await transactionService.ConfirmRefundTransactionStatusAsync(linePayTx.Id, refundTransaction.Id);
+                }
+          
+                await transactionService.DeductPointsAsync(linePayTx.UserId,
+                    refundAmount.GetValueOrDefault(refundAmount ?? linePayTx.Amount));
+
+                logger.LogInformation(
+                    $"LINE Pay Refund successful for OrderId: {orderId}. Refund Transaction ID: {refundResponse.Info.RefundTransactionId}");
+                return LinePayPaymentResult.Success(
+                    $"退款成功。狀態：{newStatus}。退款交易ID：{refundResponse.Info.RefundTransactionId}");
+            }
+
+            if (refundResponse.ReturnCode == "1165")
+            {
+                logger.LogInformation(
+                    $"LINE Pay Had Refunded already for OrderId: {orderId}. LinePay Transaction ID: {transactionId}");
+
+                await transactionService.UpdateLinePayTransactionStatusAsync(
+                    linePayTx.OrderId,
+                    TransactionStatus.Refunded
+                );
+
+                return LinePayPaymentResult.Fail("此交易已退款完成，無法再次退款。");
+            }
+
+            logger.LogError(
+                $"LINE Pay Refund failed for OrderId: {orderId}. Code: {refundResponse.ReturnCode}, Message: {refundResponse.ReturnMessage}");
+            return LinePayPaymentResult.Fail($"LINE Pay 退款失敗：{refundResponse.ReturnMessage}");
+        }
+        catch (HttpRequestException ex)
+        {
+            logger.LogError(ex, $"HTTP Request to LINE Pay Refund failed for OrderId: {orderId}.");
+            return LinePayPaymentResult.Fail($"與 LINE Pay 服務通訊失敗：{ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"An error occurred during LINE Pay refund for OrderId: {orderId}.");
+            return LinePayPaymentResult.Fail($"發生錯誤：{ex.Message}");
+        }
+    }
 }

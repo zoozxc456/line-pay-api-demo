@@ -55,6 +55,52 @@ public class TransactionService(
         }
     }
 
+    public async Task ConfirmRefundTransactionStatusAsync(Guid transactionId, Guid refundId)
+    {
+        var linePayTransaction = await linePayTransactionRepository.GetByIdAsync(transactionId);
+        if (linePayTransaction == null) throw new Exception();
+
+        linePayTransaction.MarkAsRefunded();
+        linePayTransaction.MarkRefundTransactionAsConfirmed(refundId);
+        await linePayTransactionRepository.UpdateAsync(linePayTransaction);
+    }
+
+    public async Task ConfirmPartialRefundTransactionStatusAsync(Guid transactionId, Guid refundId)
+    {
+        var linePayTransaction = await linePayTransactionRepository.GetByIdAsync(transactionId);
+        if (linePayTransaction == null) throw new Exception();
+
+        linePayTransaction.MarkAsPartialRefunded();
+        linePayTransaction.MarkRefundTransactionAsConfirmed(refundId);
+        await linePayTransactionRepository.UpdateAsync(linePayTransaction);
+    }
+
+    public async Task<LinePayRefundTransaction> CreateRefundTransactionAsync(Guid orderId, Guid transactionId,
+        decimal refundAmount, Guid userId)
+    {
+        var refundTransaction = new LinePayRefundTransaction
+        {
+            OrderId = orderId,
+            OriginalLinePayTransactionId = transactionId, // 賦值
+            RefundRequestId = Guid.NewGuid(),
+            RefundAmount = refundAmount,
+            Currency = "TWD",
+            Status = RefundTransactionStatus.Pending,
+            RequestDateTime = DateTime.Now,
+            UserId = userId
+        };
+
+        var linePayTransaction = await linePayTransactionRepository.GetByIdAsync(transactionId);
+
+        if (linePayTransaction == null) throw new Exception();
+        linePayTransaction.AddRefundTransaction(refundTransaction);
+
+        await linePayTransactionRepository.UpdateAsync(linePayTransaction);
+        logger.LogInformation(
+            $"Refund transaction {refundTransaction.RefundRequestId} created for original transaction {linePayTransaction.LinePayTransactionId} (RecordId: {transactionId}). Amount: {refundAmount}.");
+        return refundTransaction;
+    }
+
     public Task<LinePayTransaction?> GetLinePayTransactionByOrderIdAsync(Guid orderId)
     {
         return linePayTransactionRepository.GetByOrderIdAsync(orderId);

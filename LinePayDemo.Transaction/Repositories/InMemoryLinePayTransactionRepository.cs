@@ -32,6 +32,12 @@ public class InMemoryLinePayTransactionRepository : ILinePayTransactionRepositor
         return Task.CompletedTask;
     }
 
+    public Task<LinePayTransaction?> GetByIdAsync(Guid id)
+    {
+        var transaction = Transactions.Values.FirstOrDefault(x=>x.Id == id);
+        return Task.FromResult(transaction);
+    }
+
     public Task<LinePayTransaction?> GetByOrderIdAsync(Guid orderId)
     {
         Transactions.TryGetValue(orderId, out var transaction);

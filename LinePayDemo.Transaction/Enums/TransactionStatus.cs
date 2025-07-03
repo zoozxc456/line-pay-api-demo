@@ -8,4 +8,6 @@ public enum TransactionStatus
     Cancelled,
     Expired,
     Failed,
+    Refunded,
+    PartiallyRefunded
 }

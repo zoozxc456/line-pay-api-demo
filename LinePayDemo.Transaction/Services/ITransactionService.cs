@@ -10,6 +10,11 @@ public interface ITransactionService
     Task UpdateLinePayTransactionDetailsAsync(Guid orderId, long linePayTransactionId);
 
     Task UpdateLinePayTransactionStatusAsync(Guid orderId, TransactionStatus status);
+    Task ConfirmRefundTransactionStatusAsync(Guid transactionId, Guid refundId);
+    Task ConfirmPartialRefundTransactionStatusAsync(Guid transactionId, Guid refundId);
+
+    Task<LinePayRefundTransaction> CreateRefundTransactionAsync(Guid orderId, Guid transactionId,
+        decimal refundAmount, Guid userId);
 
     Task<LinePayTransaction?> GetLinePayTransactionByOrderIdAsync(Guid orderId);
 

@@ -8,6 +8,11 @@ public class GenericRepository<T>(ShoppingMallContext context) where T : class
 {
     private readonly DbSet<T> _dbSet = context.Set<T>();
 
+    protected virtual IQueryable<T> ApplyQuery(IQueryable<T> query)
+    {
+        return query;
+    }
+
     protected async Task AddAsync(T entity)
     {
         await _dbSet.AddAsync(entity);
@@ -46,16 +51,16 @@ public class GenericRepository<T>(ShoppingMallContext context) where T : class
 
     protected Task<T?> FindAsync(Expression<Func<T, bool>> predicate)
     {
-        return _dbSet.FirstOrDefaultAsync(predicate);
+        return ApplyQuery(_dbSet.AsQueryable()).FirstOrDefaultAsync(predicate);
     }
 
     protected Task<List<T>> FindAllAsync(Expression<Func<T, bool>> predicate)
     {
-        return _dbSet.Where(predicate).ToListAsync();
+        return ApplyQuery(_dbSet.AsQueryable()).Where(predicate).ToListAsync();
     }
 
     protected Task<List<T>> FindAllAsync()
     {
-        return _dbSet.ToListAsync();
+        return ApplyQuery(_dbSet.AsQueryable()).ToListAsync();
     }
 }

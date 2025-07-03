@@ -68,4 +68,22 @@ public class LinePayApiHttpClient : ILinePayApiHttpClient
         var responseBody = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<LinePayConfirmResponse>(responseBody, _jsonSerializerOptions);
     }
+
+    public async Task<LinePayRefundResponse> RefundPayment(long transactionId, LinePayRefundRequest request)
+    {
+        var requestUri = $"/v3/payments/{transactionId}/refund";
+        var nonce = Guid.NewGuid().ToString();
+        var jsonBody = JsonSerializer.Serialize(request, _jsonSerializerOptions);
+        var signature = GenerateSignature(_linePaySettings.ChannelSecret, requestUri, nonce, jsonBody);
+
+        _httpClient.DefaultRequestHeaders.Add("X-LINE-Authorization", signature);
+        _httpClient.DefaultRequestHeaders.Add("X-LINE-Authorization-Nonce", nonce);
+
+        var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+        var response = await _httpClient.PostAsync(requestUri, content);
+
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<LinePayRefundResponse>(responseBody, _jsonSerializerOptions);
+    }
 }
