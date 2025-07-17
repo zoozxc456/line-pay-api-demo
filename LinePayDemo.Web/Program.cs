@@ -1,3 +1,4 @@
+using LinePayDemo.Infrastructure.Persistence.Repositories;
 using LinePayDemo.LinePay.Clients;
 using LinePayDemo.LinePay.Services;
 using LinePayDemo.LinePay.Settings;
@@ -18,7 +19,7 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddSingleton<ILinePayTransactionRepository, InMemoryLinePayTransactionRepository>();
 builder.Services.AddSingleton<IUserBalanceRepository, InMemoryUserBalanceRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddSingleton<IProductRepository, InMemoryProductRepository>();
+builder.Services.AddSingleton<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ILinePayPaymentService, LinePayPaymentService>();
 builder.Services.AddScoped<ILinePayApiHttpClient, LinePayApiHttpClient>();
 builder.Services.Configure<LinePaySettings>(builder.Configuration.GetSection("LinePaySettings"));

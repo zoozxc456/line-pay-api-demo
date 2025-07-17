@@ -1,4 +1,4 @@
-using LinePayPaymentUrl = LinePayDemo.LinePay.Models.LinePayRequestResponse.LinePayPaymentUrl;
+using LinePayPaymentUrl = LinePayDemo.Payment.DTOs.LinePay.LinePayRequestResponse.LinePayPaymentUrl;
 
 namespace LinePayDemo.LinePay.Services;
 

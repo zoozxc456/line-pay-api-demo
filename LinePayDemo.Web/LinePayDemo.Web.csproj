@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\LinePayDemo.Infrastructure\LinePayDemo.Infrastructure.csproj" />
       <ProjectReference Include="..\LinePayDemo.LinePay\LinePayDemo.LinePay.csproj" />
       <ProjectReference Include="..\LinePayDemo.Order\LinePayDemo.Order.csproj" />
       <ProjectReference Include="..\LinePayDemo.Transaction\LinePayDemo.Transaction.csproj" />

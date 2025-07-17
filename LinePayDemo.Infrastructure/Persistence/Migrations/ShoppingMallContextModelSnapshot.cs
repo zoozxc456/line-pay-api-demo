@@ -22,24 +22,94 @@ namespace LinePayDemo.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("LinePayDemo.Order.Models.Order", b =>
+            modelBuilder.Entity("LinePayDemo.Ledger.Domain.Account.Account", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Balance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("balance");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_accounts");
+
+                    b.ToTable("accounts", (string)null);
+                });
+
+            modelBuilder.Entity("LinePayDemo.Ledger.Domain.Transaction.Transaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("transaction_date");
+
+                    b.HasKey("Id")
+                        .HasName("pk_transactions");
+
+                    b.ToTable("transactions", (string)null);
+                });
+
+            modelBuilder.Entity("LinePayDemo.Ledger.Domain.Transaction.TransactionEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("transaction_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_transaction_entries");
+
+                    b.HasIndex("TransactionId")
+                        .HasDatabaseName("ix_transaction_entries_transaction_id");
+
+                    b.ToTable("transaction_entries", (string)null);
+                });
+
+            modelBuilder.Entity("LinePayDemo.Order.Domain.Order", b =>
                 {
                     b.Property<Guid>("OrderId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("order_id");
 
+                    b.Property<Guid>("BuyerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("buyer_id");
+
+                    b.Property<Guid?>("LedgerTransactionId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ledger_transaction_id");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2")
                         .HasColumnName("order_date");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("product_id");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int")
-                        .HasColumnName("quantity");
 
                     b.Property<int>("Status")
                         .HasColumnType("int")
@@ -49,17 +119,202 @@ namespace LinePayDemo.Infrastructure.Persistence.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("total_amount");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("user_id");
-
                     b.HasKey("OrderId")
                         .HasName("pk_orders");
+
+                    b.HasIndex("LedgerTransactionId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_orders_ledger_transaction_id")
+                        .HasFilter("[ledger_transaction_id] IS NOT NULL");
 
                     b.ToTable("orders", (string)null);
                 });
 
-            modelBuilder.Entity("LinePayDemo.Product.Models.ProductItem", b =>
+            modelBuilder.Entity("LinePayDemo.Order.Domain.OrderDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("order_id");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("subtotal");
+
+                    b.HasKey("Id")
+                        .HasName("pk_order_details");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_order_details_order_id");
+
+                    b.ToTable("order_details", (string)null);
+                });
+
+            modelBuilder.Entity("LinePayDemo.Payment.Domain.LinePay.LinePayRefundTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("confirmed_at");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("currency");
+
+                    b.Property<Guid?>("LedgerTransactionId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ledger_transaction_id");
+
+                    b.Property<long?>("LinePayRefundTransactionId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("line_pay_refund_transaction_id");
+
+                    b.Property<Guid>("LinePayTransactionId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("line_pay_transaction_id");
+
+                    b.Property<decimal>("RefundAmount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("refund_amount");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_line_pay_refund_transactions");
+
+                    b.HasIndex("LedgerTransactionId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_line_pay_refund_transactions_ledger_transaction_id")
+                        .HasFilter("[ledger_transaction_id] IS NOT NULL");
+
+                    b.HasIndex("LinePayTransactionId")
+                        .HasDatabaseName("ix_line_pay_refund_transactions_line_pay_transaction_id");
+
+                    b.ToTable("line_pay_refund_transactions", (string)null);
+                });
+
+            modelBuilder.Entity("LinePayDemo.Payment.Domain.LinePay.LinePayTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("confirmed_at");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("currency");
+
+                    b.Property<Guid?>("LedgerTransactionId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ledger_transaction_id");
+
+                    b.Property<long?>("LinePayTransactionId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("line_pay_transaction_id");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("order_id");
+
+                    b.Property<DateTime?>("PendingAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("pending_at");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_line_pay_transactions");
+
+                    b.HasIndex("LedgerTransactionId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_line_pay_transactions_ledger_transaction_id")
+                        .HasFilter("[ledger_transaction_id] IS NOT NULL");
+
+                    b.ToTable("line_pay_transactions", (string)null);
+                });
+
+            modelBuilder.Entity("LinePayDemo.Payment.Domain.UserPoint.UserPointTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("description");
+
+                    b.Property<Guid?>("LedgerTransactionId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ledger_transaction_id");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("transaction_date");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int")
+                        .HasColumnName("type");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_point_transactions");
+
+                    b.HasIndex("LedgerTransactionId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_point_transactions_ledger_transaction_id")
+                        .HasFilter("[ledger_transaction_id] IS NOT NULL");
+
+                    b.ToTable("user_point_transactions", (string)null);
+                });
+
+            modelBuilder.Entity("LinePayDemo.Product.Domain.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -76,9 +331,10 @@ namespace LinePayDemo.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("name");
 
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)")
-                        .HasColumnName("price");
+                        .HasColumnName("unit_price");
 
                     b.HasKey("Id")
                         .HasName("pk_products");
@@ -86,119 +342,7 @@ namespace LinePayDemo.Infrastructure.Persistence.Migrations
                     b.ToTable("products", (string)null);
                 });
 
-            modelBuilder.Entity("LinePayDemo.Transaction.Models.LinePayRefundTransaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("currency");
-
-                    b.Property<long>("LinePayRefundTransactionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("line_pay_refund_transaction_id");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("order_id");
-
-                    b.Property<Guid>("OriginalLinePayTransactionId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("original_line_pay_transaction_id");
-
-                    b.Property<decimal>("RefundAmount")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("refund_amount");
-
-                    b.Property<Guid>("RefundRequestId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("refund_request_id");
-
-                    b.Property<DateTime>("RequestDateTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("request_date_time");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int")
-                        .HasColumnName("status");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_line_pay_refund_transactions");
-
-                    b.HasIndex("OriginalLinePayTransactionId")
-                        .HasDatabaseName("ix_line_pay_refund_transactions_original_line_pay_transaction_id");
-
-                    b.ToTable("line_pay_refund_transactions", (string)null);
-                });
-
-            modelBuilder.Entity("LinePayDemo.Transaction.Models.LinePayTransaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("amount");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("currency");
-
-                    b.Property<long>("LinePayTransactionId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("line_pay_transaction_id");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("order_id");
-
-                    b.Property<DateTime>("RequestDateTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("request_date_time");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int")
-                        .HasColumnName("status");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_line_pay_transactions");
-
-                    b.ToTable("line_pay_transactions", (string)null);
-                });
-
-            modelBuilder.Entity("LinePayDemo.Transaction.Models.UserBalance", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("user_id");
-
-                    b.Property<decimal>("Balance")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("balance");
-
-                    b.HasKey("UserId")
-                        .HasName("pk_user_balances");
-
-                    b.ToTable("user_balances", (string)null);
-                });
-
-            modelBuilder.Entity("LinePayDemo.User.Models.User", b =>
+            modelBuilder.Entity("LinePayDemo.User.Domain.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -209,6 +353,10 @@ namespace LinePayDemo.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("account");
+
+                    b.Property<decimal>("CurrentPointBalance")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("current_point_balance");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -226,17 +374,177 @@ namespace LinePayDemo.Infrastructure.Persistence.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("LinePayDemo.Transaction.Models.LinePayRefundTransaction", b =>
+            modelBuilder.Entity("LinePayDemo.Ledger.Domain.Transaction.TransactionEntry", b =>
                 {
-                    b.HasOne("LinePayDemo.Transaction.Models.LinePayTransaction", null)
-                        .WithMany("RefundTransactions")
-                        .HasForeignKey("OriginalLinePayTransactionId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("LinePayDemo.Ledger.Domain.Transaction.Transaction", "Transaction")
+                        .WithMany("Entries")
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_line_pay_refund_transactions_line_pay_transactions_original_line_pay_transaction_id");
+                        .HasConstraintName("fk_transaction_entries_transactions_transaction_id");
+
+                    b.OwnsOne("LinePayDemo.Ledger.Domain.Transaction.TransactionEntryData", "Data", b1 =>
+                        {
+                            b1.Property<Guid>("TransactionEntryId")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("id");
+
+                            b1.Property<Guid>("AccountId")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("data_account_id");
+
+                            b1.Property<decimal>("Credit")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("data_credit");
+
+                            b1.Property<decimal>("Debit")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("data_debit");
+
+                            b1.HasKey("TransactionEntryId");
+
+                            b1.HasIndex("AccountId")
+                                .HasDatabaseName("ix_transaction_entries_data_account_id");
+
+                            b1.ToTable("transaction_entries");
+
+                            b1.HasOne("LinePayDemo.Ledger.Domain.Account.Account", null)
+                                .WithMany()
+                                .HasForeignKey("AccountId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired()
+                                .HasConstraintName("fk_transaction_entries_accounts_data_account_id");
+
+                            b1.WithOwner()
+                                .HasForeignKey("TransactionEntryId")
+                                .HasConstraintName("fk_transaction_entries_transaction_entries_id");
+                        });
+
+                    b.Navigation("Data")
+                        .IsRequired();
+
+                    b.Navigation("Transaction");
                 });
 
-            modelBuilder.Entity("LinePayDemo.Transaction.Models.LinePayTransaction", b =>
+            modelBuilder.Entity("LinePayDemo.Order.Domain.Order", b =>
+                {
+                    b.HasOne("LinePayDemo.Ledger.Domain.Transaction.Transaction", "LedgerTransaction")
+                        .WithOne()
+                        .HasForeignKey("LinePayDemo.Order.Domain.Order", "LedgerTransactionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_orders_transactions_ledger_transaction_id");
+
+                    b.Navigation("LedgerTransaction");
+                });
+
+            modelBuilder.Entity("LinePayDemo.Order.Domain.OrderDetail", b =>
+                {
+                    b.HasOne("LinePayDemo.Order.Domain.Order", "Order")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_details_orders_order_id");
+
+                    b.OwnsOne("LinePayDemo.Order.Domain.OrderItemData", "OrderItemData", b1 =>
+                        {
+                            b1.Property<Guid>("OrderDetailId")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("id");
+
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("order_item_data_product_id");
+
+                            b1.Property<int>("Quantity")
+                                .HasColumnType("int")
+                                .HasColumnName("order_item_data_quantity");
+
+                            b1.Property<decimal>("UnitPrice")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("order_item_data_unit_price");
+
+                            b1.HasKey("OrderDetailId");
+
+                            b1.HasIndex("ProductId")
+                                .HasDatabaseName("ix_order_details_order_item_data_product_id");
+
+                            b1.ToTable("order_details");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderDetailId")
+                                .HasConstraintName("fk_order_details_order_details_id");
+
+                            b1.HasOne("LinePayDemo.Product.Domain.Product", "Product")
+                                .WithMany()
+                                .HasForeignKey("ProductId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired()
+                                .HasConstraintName("fk_order_details_products_order_item_data_product_id");
+
+                            b1.Navigation("Product");
+                        });
+
+                    b.Navigation("Order");
+
+                    b.Navigation("OrderItemData")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("LinePayDemo.Payment.Domain.LinePay.LinePayRefundTransaction", b =>
+                {
+                    b.HasOne("LinePayDemo.Ledger.Domain.Transaction.Transaction", "LedgerTransaction")
+                        .WithOne()
+                        .HasForeignKey("LinePayDemo.Payment.Domain.LinePay.LinePayRefundTransaction", "LedgerTransactionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_line_pay_refund_transactions_transactions_ledger_transaction_id");
+
+                    b.HasOne("LinePayDemo.Payment.Domain.LinePay.LinePayTransaction", null)
+                        .WithMany("RefundTransactions")
+                        .HasForeignKey("LinePayTransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_line_pay_refund_transactions_line_pay_transactions_line_pay_transaction_id");
+
+                    b.Navigation("LedgerTransaction");
+                });
+
+            modelBuilder.Entity("LinePayDemo.Payment.Domain.LinePay.LinePayTransaction", b =>
+                {
+                    b.HasOne("LinePayDemo.Ledger.Domain.Transaction.Transaction", "LedgerTransaction")
+                        .WithOne()
+                        .HasForeignKey("LinePayDemo.Payment.Domain.LinePay.LinePayTransaction", "LedgerTransactionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_line_pay_transactions_transactions_ledger_transaction_id");
+
+                    b.Navigation("LedgerTransaction");
+                });
+
+            modelBuilder.Entity("LinePayDemo.Payment.Domain.UserPoint.UserPointTransaction", b =>
+                {
+                    b.HasOne("LinePayDemo.Ledger.Domain.Transaction.Transaction", "LedgerTransaction")
+                        .WithOne()
+                        .HasForeignKey("LinePayDemo.Payment.Domain.UserPoint.UserPointTransaction", "LedgerTransactionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_user_point_transactions_transactions_ledger_transaction_id");
+
+                    b.Navigation("LedgerTransaction");
+                });
+
+            modelBuilder.Entity("LinePayDemo.Ledger.Domain.Transaction.Transaction", b =>
+                {
+                    b.Navigation("Entries");
+                });
+
+            modelBuilder.Entity("LinePayDemo.Order.Domain.Order", b =>
+                {
+                    b.Navigation("OrderDetails");
+                });
+
+            modelBuilder.Entity("LinePayDemo.Payment.Domain.LinePay.LinePayTransaction", b =>
                 {
                     b.Navigation("RefundTransactions");
                 });

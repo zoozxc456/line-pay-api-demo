@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\LinePayDemo.Ledger\LinePayDemo.Ledger.csproj" />
       <ProjectReference Include="..\LinePayDemo.Product\LinePayDemo.Product.csproj" />
     </ItemGroup>
 

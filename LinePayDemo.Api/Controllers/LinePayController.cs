@@ -1,30 +1,17 @@
+using LinePayDemo.Api.Contracts.Request;
 using LinePayDemo.Api.Helpers;
-using LinePayDemo.LinePay.Services;
+using LinePayDemo.Order.Services;
+using LinePayDemo.Payment.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LinePayDemo.Api.Controllers;
 
-public class InitiateLinePayDepositRequest
-{
-    public Guid UserId { get; set; }
-    public decimal Amount { get; set; }
-    public string Platform { get; set; }
-}
-
-public class RefundLinePayDepositRequest
-{
-    public Guid UserId { get; set; }
-    public Guid OrderId { get; set; }
-    public long TransactionId { get; set; }
-    public decimal? RefundAmount { get; set; }
-}
-
 [ApiController]
 [Route("api/[controller]")]
-public class LinePayController(ILinePayPaymentService linePayPaymentService) : ControllerBase
+public class LinePayController(IPaymentService paymentService, IOrderService orderService) : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> InitiateLinePayDeposit([FromBody] InitiateLinePayDepositRequest request)
+    public async Task<IActionResult> CreateLinePayDepositAsync([FromBody] InitiateLinePayDepositRequest request)
     {
         if (request.Amount <= 0)
         {
@@ -41,14 +28,13 @@ public class LinePayController(ILinePayPaymentService linePayPaymentService) : C
         }
         else
         {
-            confirmUrl =
-                Url.Action("ConfirmLinePayDeposit", "LinePay", new { orderId = "PLACEHOLDER" }, Request.Scheme) ?? "";
-            cancelUrl =
-                Url.Action("CancelLinePayDeposit", "LinePay", new { orderId = "PLACEHOLDER" }, Request.Scheme) ?? "";
+            confirmUrl = Url.Action("ConfirmLinePayDeposit", "LinePay", "",Request.Scheme) ?? "";
+            cancelUrl = Url.Action("CancelLinePayDeposit", "LinePay","", Request.Scheme) ?? "";
         }
 
-
-        var result = await linePayPaymentService.InitiateDepositAsync(request.Amount, userId, confirmUrl, cancelUrl);
+        var orderResult = await orderService.CreateTopUpOrderAsync(request.UserId, request.Amount);
+        var result = await paymentService.CreateDepositPaymentAsync(request.UserId, orderResult.OrderId,
+            confirmUrl, cancelUrl);
 
         if (result.IsSuccess)
         {
@@ -61,40 +47,43 @@ public class LinePayController(ILinePayPaymentService linePayPaymentService) : C
     [HttpGet("confirm")]
     public async Task<IActionResult> ConfirmLinePayDeposit(Guid orderId, long transactionId)
     {
-        var result = await linePayPaymentService.ConfirmDepositAsync(orderId, transactionId);
+        var result = await paymentService.HandleDepositPaymentAsync(orderId, transactionId);
 
-        if (result.IsSuccess)
+        if (result)
         {
-            return Ok(new ResponseModel { Message = result.Message });
+            return Ok(new ResponseModel { Message = "支付成功" });
         }
 
-        return BadRequest(new ResponseModel { Message = result.Message });
+        return BadRequest(new ResponseModel { Message = "支付失敗" });
     }
 
     [HttpGet("cancel")]
-    public async Task<IActionResult> CancelLinePayDeposit(Guid orderId)
+    public async Task<IActionResult> CancelLinePayDeposit(Guid orderId, long transactionId)
     {
-        var result = await linePayPaymentService.CancelDepositAsync(orderId);
-
-        if (result.IsSuccess)
+        try
         {
-            return Ok(new ResponseModel { Message = result.Message });
+            await paymentService.HandleCancelDepositPaymentAsync(orderId, transactionId);
+            return Ok(new ResponseModel { Message = "取消成功" });
         }
-
-        return BadRequest(new ResponseModel { Message = result.Message });
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return BadRequest(new ResponseModel { Message = "取消失敗" });
+        }
     }
 
     [HttpPost("refund")]
     public async Task<IActionResult> RefundLinePayDeposit([FromBody] RefundLinePayDepositRequest request)
     {
-        var result = await linePayPaymentService.RefundDepositAsync(request.OrderId, request.UserId,
-            request.TransactionId, request.RefundAmount);
-
-        if (result.IsSuccess)
+        try
         {
-            return Ok(new ResponseModel { Message = result.Message });
+            await paymentService.RefundDepositAsync(request.OrderId, request.UserId, request.TransactionId);
+            return Ok(new ResponseModel { Message = "退款成功" });
         }
-
-        return BadRequest(new ResponseModel { Message = result.Message });
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return BadRequest(new ResponseModel { Message = "退款失敗" });
+        }
     }
 }

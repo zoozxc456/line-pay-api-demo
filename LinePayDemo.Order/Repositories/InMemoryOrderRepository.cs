@@ -18,10 +18,35 @@ public class InMemoryOrderRepository : IOrderRepository
         return Task.CompletedTask;
     }
 
+    public Task AddAsync(Domain.Order order)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateAsync(Domain.Order order)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Domain.Order?> IOrderRepository.GetByOrderIdAsync(Guid orderId)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<Models.Order?> GetByOrderIdAsync(Guid orderId)
     {
         Orders.TryGetValue(orderId, out var order);
         return Task.FromResult(order);
+    }
+
+    public Task<Domain.Order?> GetByIdAsync(Guid orderId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<Domain.Order>> GetAllForBuyerAsync(Guid userId)
+    {
+        throw new NotImplementedException();
     }
 
     public Task<List<Models.Order>> GetAllForUserAsync(Guid userId)

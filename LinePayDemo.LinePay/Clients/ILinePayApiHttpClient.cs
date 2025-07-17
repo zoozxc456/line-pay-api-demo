@@ -1,4 +1,4 @@
-using LinePayDemo.LinePay.Models;
+using LinePayDemo.Payment.DTOs.LinePay;
 
 namespace LinePayDemo.LinePay.Clients;
 

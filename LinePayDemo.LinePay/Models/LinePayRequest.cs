@@ -1,4 +1,4 @@
-namespace LinePayDemo.LinePay.Models;
+namespace LinePayDemo.Payment.DTOs.LinePay;
 
 public class LinePayRequest
 {

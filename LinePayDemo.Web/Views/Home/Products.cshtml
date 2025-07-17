@@ -1,4 +1,4 @@
-@model IEnumerable<LinePayDemo.Product.Models.ProductItem>
+@model IEnumerable<LinePayDemo.Product.Domain.Product>
 
 @{
     ViewData["Title"] = "商店商品";
@@ -29,7 +29,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">@product.Name</h5>
-                    <p class="card-text">價格：@product.Price 點</p>
+                    <p class="card-text">價格：@product.UnitPrice 點</p>
                     <form asp-controller="Home" asp-action="Purchase" method="post">
                         <input type="hidden" name="productId" value="@product.Id"/>
                         <div class="form-group">

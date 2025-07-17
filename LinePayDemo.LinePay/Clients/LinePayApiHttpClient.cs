@@ -2,7 +2,7 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using LinePayDemo.LinePay.Models;
+using LinePayDemo.Payment.DTOs.LinePay;
 using LinePayDemo.LinePay.Settings;
 using Microsoft.Extensions.Options;
 

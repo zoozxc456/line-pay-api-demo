@@ -1,6 +1,6 @@
 using LinePayDemo.Infrastructure.Persistence.Contexts;
-using LinePayDemo.Transaction.Models;
-using LinePayDemo.Transaction.Repositories;
+using LinePayDemo.Payment.Domain.LinePay;
+using LinePayDemo.Payment.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace LinePayDemo.Infrastructure.Persistence.Repositories;

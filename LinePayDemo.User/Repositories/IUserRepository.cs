@@ -2,9 +2,9 @@ namespace LinePayDemo.User.Repositories;
 
 public interface IUserRepository
 {
-    Task<Models.User?> GetByAccountAsync(string account);
-    Task AddAsync(Models.User user);
-    Task UpdateAsync(Models.User user);
-    Task<Models.User?> GetByIdAsync(Guid id);
-    Task<List<Models.User>> GetAllAsync();
+    Task<Domain.User?> GetByAccountAsync(string account);
+    Task AddAsync(Domain.User user);
+    Task UpdateAsync(Domain.User user);
+    Task<Domain.User?> GetByIdAsync(Guid id);
+    Task<List<Domain.User>> GetAllAsync();
 }

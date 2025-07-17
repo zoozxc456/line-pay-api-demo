@@ -3,6 +3,7 @@ namespace LinePayDemo.Order.Services;
 public interface IOrderService
 {
     Task<OrderCreationResult> CreateOrderAsync(Guid userId, Guid productId, int quantity);
+    Task<OrderCreationResult> CreateTopUpOrderAsync(Guid userId, decimal amount);
     Task<bool> MarkOrderAsPaidAsync(Guid orderId);
     Task<bool> CancelOrderAsync(Guid orderId);
 }

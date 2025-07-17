@@ -5,14 +5,14 @@ using LinePayDemo.Product.Repositories;
 namespace LinePayDemo.Infrastructure.Persistence.Repositories;
 
 public class ProductRepository(ShoppingMallContext context)
-    : GenericRepository<ProductItem>(context), IProductRepository
+    : GenericRepository<Product.Domain.Product>(context), IProductRepository
 {
-    public Task<List<ProductItem>> GetAllAsync()
+    public Task<List<Product.Domain.Product>> GetAllAsync()
     {
         return FindAllAsync();
     }
 
-    public Task<ProductItem?> GetByIdAsync(Guid id)
+    public Task<Product.Domain.Product?> GetByIdAsync(Guid id)
     {
         return FindAsync(x => x.Id == id);
     }

@@ -1,5 +1,5 @@
 using LinePayDemo.LinePay.Clients;
-using LinePayDemo.LinePay.Models;
+using LinePayDemo.Payment.DTOs.LinePay;
 using LinePayDemo.Transaction.Enums;
 using LinePayDemo.Transaction.Services;
 using Microsoft.Extensions.Logging;

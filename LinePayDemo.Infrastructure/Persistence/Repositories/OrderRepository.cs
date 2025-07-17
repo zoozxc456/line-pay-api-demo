@@ -1,28 +1,41 @@
 using LinePayDemo.Infrastructure.Persistence.Contexts;
 using LinePayDemo.Order.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace LinePayDemo.Infrastructure.Persistence.Repositories;
 
 public class OrderRepository(ShoppingMallContext context)
-    : GenericRepository<Order.Models.Order>(context), IOrderRepository
+    : GenericRepository<Order.Domain.Order>(context), IOrderRepository
 {
-    public new Task AddAsync(Order.Models.Order order)
+    protected override IQueryable<Order.Domain.Order> ApplyQuery(IQueryable<Order.Domain.Order> query)
+    {
+        return query
+            .Include(x => x.OrderDetails)
+            .Include(x => x.LedgerTransaction);
+    }
+
+    public new Task AddAsync(Order.Domain.Order order)
     {
         return base.AddAsync(order);
     }
 
-    public new Task UpdateAsync(Order.Models.Order order)
+    public new Task UpdateAsync(Order.Domain.Order order)
     {
         return base.UpdateAsync(order);
     }
 
-    public Task<Order.Models.Order?> GetByOrderIdAsync(Guid orderId)
+    public Task<Order.Domain.Order?> GetByOrderIdAsync(Guid orderId)
     {
         return FindAsync(x => x.OrderId == orderId);
     }
 
-    public Task<List<Order.Models.Order>> GetAllForUserAsync(Guid userId)
+    public Task<Order.Domain.Order?> GetByIdAsync(Guid orderId)
     {
-        return FindAllAsync(x => x.UserId == userId);
+        return FindAsync(x => x.OrderId == orderId);
+    }
+
+    public Task<List<Order.Domain.Order>> GetAllForBuyerAsync(Guid userId)
+    {
+        return FindAllAsync(x => x.BuyerId == userId);
     }
 }

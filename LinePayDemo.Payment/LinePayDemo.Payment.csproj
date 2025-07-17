@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LinePayDemo.Ledger\LinePayDemo.Ledger.csproj" />
+      <ProjectReference Include="..\LinePayDemo.Order\LinePayDemo.Order.csproj" />
+      <ProjectReference Include="..\LinePayDemo.User\LinePayDemo.User.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Domain\OnPremise\" />
+    </ItemGroup>
+
+</Project>

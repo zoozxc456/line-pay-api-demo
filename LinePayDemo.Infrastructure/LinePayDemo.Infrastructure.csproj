@@ -23,10 +23,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LinePayDemo.LinePay\LinePayDemo.LinePay.csproj" />
+      <ProjectReference Include="..\LinePayDemo.Ledger\LinePayDemo.Ledger.csproj" />
       <ProjectReference Include="..\LinePayDemo.Order\LinePayDemo.Order.csproj" />
+      <ProjectReference Include="..\LinePayDemo.Payment\LinePayDemo.Payment.csproj" />
       <ProjectReference Include="..\LinePayDemo.Product\LinePayDemo.Product.csproj" />
-      <ProjectReference Include="..\LinePayDemo.Transaction\LinePayDemo.Transaction.csproj" />
       <ProjectReference Include="..\LinePayDemo.User\LinePayDemo.User.csproj" />
     </ItemGroup>
 
